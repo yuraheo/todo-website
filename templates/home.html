@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> What ToDo</title>
+    <style>
+      h1 {
+      font-size: 100px;
+      font-family: system-ui; 
+      color: white;
+      text-align: center;
+      margin-top: 40vh;
+      }
+
+      h2{
+              font-size: 25px;
+      font-family: system-ui; 
+      color: white;
+      text-align: center;
+      margin-top: -70px;
+      margin-bottom: 50px;
+
+        
+        
+      }
+      body {
+        background-color: black;
+        margin: ; 0;
+      }
+      nav {
+        position: absolute;
+        top: 10px;
+        right: ; 10px;
+      }
+
+      nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
+          nav ul li {
+        margin-left: 10px;
+      }
+
+      nav ul li a {
+        color: white;
+        font-family: system-ui;
+        text-decoration: none;
+      }
+
+      nav ul li a:hover {
+        text-decoration: underline;
+      }
+
+            input[type="submit"] {
+        border: 2px solid white;
+        background-color: transparent;
+        color: white;
+        font-family: system-ui;
+        padding: 8px 16px;
+        cursor: pointer;
+      }
+
+      input[type="submit"]:hover {
+        background-color: white;
+        color: black;
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <h1>What ToDo.</h1>
+    <h2>to make the best out of today</h2>
+    <nav>
+  <ul>
+    {% if g.user %}
+      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+    {% else %}
+      <li><a href="{{ url_for('auth.register') }}">Register</a>
+      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+    {% endif %}
+  </ul>
+</nav>
+
+    
+    
+
+    
+    <!-- Hello! Efficiently keep track of your tasks using What ToDo :)  -<black></black>  
+  </body>
+
+  
+</html>
