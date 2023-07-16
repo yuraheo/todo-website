@@ -1,25 +1,11 @@
 {% extends 'home.html' %}
 
-
 {% block header %}
-<style>
-    h1 {
-      color: white;
-    }
-    label, input[type="text"], input[type="password"], input[type="submit"] {
-      color: white;
-    }
-  </style>
-  <h1>{% block title %}Register{% endblock %}</h1>
+ <h1>{% block title %}Log In{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<style>
-    label, input[type="text"], input[type="password"], input[type="submit"] {
-      background-color: transparent;
-      border: 1px solid white;
-    }
-  </style>
+
 
   <form method="post">
     <label for="username">Username</label>
