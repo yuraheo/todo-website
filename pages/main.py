@@ -1,33 +1,11 @@
+"""
+Created on 7/17/2023
 
-
+@author: yurah
+"""
 
 import streamlit as st
 
-
-
-
-def index():
-
-    st.title("What ToDo.")
-    st.subheader("to make the best out of today")
-
-    if st.button("Login/Sign up", key = "login_button"):
-        login()  # Call the login function when the button is clicked
-
-
-def login():
-    html_code = '''
-       <iframe src="login.html" height="600" width="100%"></iframe>
-       '''
-
-    # JavaScript code for the iframe
-    js_code = '''
-       <iframe src="src/login.js" height="600" width="100%"></iframe>
-       '''
-
-    # Display the HTML and JavaScript iframes using st.markdown
-    st.markdown(html_code, unsafe_allow_html=True)
-    st.markdown(js_code, unsafe_allow_html=True)
 
 import pandas as pd
 from db_fxn import create_table, add_tasks, view_all_tasks, \
@@ -143,13 +121,4 @@ def main():
         df2 = pd.DataFrame(new_result, columns=['Task', 'Status', 'Due Date'])
         with st.expander("Updated Data"):
           st.dataframe(df2)
-
-
-
-
-
-if __name__ == "__main__":
-    index()
-
-
 
