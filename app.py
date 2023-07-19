@@ -1,38 +1,101 @@
 
 
-
 import streamlit as st
-
-
-
-
-def index():
-
-    st.title("What ToDo.")
-    st.subheader("to make the best out of today")
-
-    if st.button("Login/Sign up", key = "login_button"):
-        login()  # Call the login function when the button is clicked
-
-
-def login():
-    html_code = '''
-       <iframe src="login.html" height="600" width="100%"></iframe>
-       '''
-
-    # JavaScript code for the iframe
-    js_code = '''
-       <iframe src="src/login.js" height="600" width="100%"></iframe>
-       '''
-
-    # Display the HTML and JavaScript iframes using st.markdown
-    st.markdown(html_code, unsafe_allow_html=True)
-    st.markdown(js_code, unsafe_allow_html=True)
-
 import pandas as pd
 from db_fxn import create_table, add_tasks, view_all_tasks, \
   view_unique_tasks, get_task, edit_task_data, delete_task
 import plotly.express as px
+
+from user import login, signup
+
+headerSection = st.container()
+mainSection = st.container()
+loginSection = st.container()
+signupSection = st.container()
+logOutSection = st.container()
+
+
+
+
+
+
+
+
+ # Call the login function when the button is clicked
+
+
+# def show_main_page():
+#     with mainSection:
+#         processingClicked = st.button("Start Processing", key="processing")
+#     if processingClicked:
+#         st.balloons()
+
+
+def LoggedOut_Clicked():
+    st.session_state['loggedIn'] = False
+
+
+
+def show_logout_page():
+    loginSection.empty()
+    with logOutSection:
+        st.button("Log Out", key = "logout", on_click = LoggedOut_Clicked)
+
+
+def signed_up_Clicked():
+  if signup(userName, password):
+      st.session_state['loggedIn'] = True
+
+  else:
+      st.session_state["loggedIn"] = False
+      st.error("Invalid username or password")
+
+
+def show_sign_up_page():
+  st.title("What ToDo.")
+  st.header(": to make the best out of today")
+  st.subheader("Thank you for signing up to What ToDo")
+  with signupSection:
+      if st.session_state['loggedIn'] == False:
+          userName = st.text_input(label = "", value ="", placeholder =
+          "Enter your new user name")
+          password = st.text_input(label="", value="", placeholder=
+          "Enter your new password", type = "password")
+          st.button("Signup", key = "signup", on_click = lambda:
+          signed_up_Clicked(userName, password))
+
+
+
+
+def LoggedIn_Clicked(userName, password):
+    if login(userName, password):
+        st.session_state['loggedIn'] = True
+
+    else:
+        st.session_state["loggedIn"] = False
+        st.error("Invalid username or password")
+
+
+def show_login_page():
+  st.title("What ToDo.")
+  st.header(": to make the best out of today")
+  with loginSection:
+      if not st.session_state['loggedIn']:
+          userName = st.text_input(label = "", value ="", placeholder =
+          "Enter your user name")
+          password = st.text_input(label="", value="", placeholder=
+          "Enter your password", type = "password")
+          st.button("Login", key = "login", on_click = lambda:
+          LoggedIn_Clicked(userName, password))
+          st.markdown("Don't have an account? [Create an account](show_sign_up_page)",
+                    unsafe_allow_html=True)
+
+
+
+
+
+
+
 
 def main():
     st.set_page_config(page_title="My Tasks")
@@ -145,11 +208,19 @@ def main():
           st.dataframe(df2)
 
 
+with headerSection:
+    if 'loggedIn' not in st.session_state:
+        st.session_state['loggedIn'] = False
+        show_login_page() 
+
+    else:
+        if st.session_state['loggedIn']:
+            show_logout_page()
+            main()
+        else:
+            show_login_page()
 
 
-
-if __name__ == "__main__":
-    index()
 
 
 
