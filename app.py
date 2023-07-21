@@ -17,10 +17,6 @@ logOutSection = st.container()
 
 
 
-
-
-
-
  # Call the login function when the button is clicked
 
 
@@ -42,29 +38,31 @@ def show_logout_page():
         st.button("Log Out", key = "logout", on_click = LoggedOut_Clicked)
 
 
-def signed_up_Clicked():
+# def signed_up_Clicked():
+#   if signup(userName, password):
+#       st.session_state['loggedIn'] = True
+
+#   else:
+#       st.session_state["loggedIn"] = False
+#       st.error("Invalid username or password")
+
+
+# def show_sign_up_page():
+#   st.title("What ToDo.")
+#   st.header(": to make the best out of today")
+#   st.subheader("Thank you for signing up to What ToDo")
+#   with signupSection:
+#       if st.session_state['loggedIn'] == False:
+#           userName = st.text_input(label = "", value ="", placeholder =
+#           "Enter your new user name")
+#           password = st.text_input(label="", value="", placeholder=
+#           "Enter your new password", type = "password")
+#           st.button("Signup", key = "signup", on_click = lambda:
+#           signed_up_Clicked(userName, password))
+
+def signed_up_Clicked(userName, password):
   if signup(userName, password):
       st.session_state['loggedIn'] = True
-
-  else:
-      st.session_state["loggedIn"] = False
-      st.error("Invalid username or password")
-
-
-def show_sign_up_page():
-  st.title("What ToDo.")
-  st.header(": to make the best out of today")
-  st.subheader("Thank you for signing up to What ToDo")
-  with signupSection:
-      if st.session_state['loggedIn'] == False:
-          userName = st.text_input(label = "", value ="", placeholder =
-          "Enter your new user name")
-          password = st.text_input(label="", value="", placeholder=
-          "Enter your new password", type = "password")
-          st.button("Signup", key = "signup", on_click = lambda:
-          signed_up_Clicked(userName, password))
-
-
 
 
 def LoggedIn_Clicked(userName, password):
@@ -79,7 +77,10 @@ def LoggedIn_Clicked(userName, password):
 def show_login_page():
   st.title("What ToDo.")
   st.header(": to make the best out of today")
-  with loginSection:
+  menu = ["Login", "Sign Up"]
+  choice = st.sidebar.selectbox("Menu", menu)
+  if choice == "Login":
+    with loginSection:
       if not st.session_state['loggedIn']:
           userName = st.text_input(label = "", value ="", placeholder =
           "Enter your user name")
@@ -87,18 +88,22 @@ def show_login_page():
           "Enter your password", type = "password")
           st.button("Login", key = "login", on_click = lambda:
           LoggedIn_Clicked(userName, password))
-          st.markdown("Don't have an account? [Create an account](show_sign_up_page)",
-                    unsafe_allow_html=True)
 
-
-
+  if choice == "Sign Up":
+    with signupSection:
+      if st.session_state['loggedIn'] == False:
+          userName = st.text_input(label = "", value ="", placeholder =
+          "Enter your new user name")
+          password = st.text_input(label="", value="", placeholder=
+          "Enter your new password", type = "password")
+          st.button("Signup", key = "signup", on_click = lambda:
+          signed_up_Clicked(userName, password))
 
 
 
 
 
 def main():
-    st.set_page_config(page_title="My Tasks")
     st.title("My Tasks")
     menu = ["Create", "Read", "Update", "Delete", "About"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -121,6 +126,7 @@ def main():
         if st.button("Add Task"):
           add_tasks(task, task_status, task_due_date)
           st.success("Successfully Added Task: {}".format(task))
+          st.balloons()
 
 
 
@@ -129,17 +135,17 @@ def main():
         st.subheader("View Items")
         result = view_all_tasks()
         st.write(result)
-        df = pd.DataFrame(result, columns=['Tasks', 'Status', 'Due Date'])
-        with st.expander("View All Tasks"):
-          st.dataframe(df)
+        with st.expander("View All"):
+			      clean_df = pd.DataFrame(result,columns=["Task", "Status", "Due Date"])
+			      st.dataframe(clean_df)
 
         with st.expander("Task Status"):
-          task_df = df['Status'].value_counts().to_frame()
+          task_df = clean_df['Status'].value_counts().to_frame()
           task_df = task_df.reset_index()
           st.dataframe(task_df)
 
-          p1 = px.pie(task_df, names = 'index', values = 'Status')
-          st.plotly_chart(p1)
+          p1 = px.pie(task_df, names = task_df.index, values = 'Status')
+          st.plotly_chart(p1,use_container_width=True)
 
 
     elif choice == "Update":
@@ -180,11 +186,11 @@ def main():
                              task_status, task_due_date)
               st.success("Successfully Updated {} to {}".format(task, new_task))
 
-            with st.expander("View Updated Data"):
-              result = view_all_tasks()
-              # st.write(result)
-              clean_df = pd.DataFrame(result, columns=["Task", "Status", "Date"])
-              st.dataframe(clean_df)
+        with st.expander("View Updated Data"):
+          result = view_all_tasks()
+          # st.write(result)
+          clean_df = pd.DataFrame(result, columns=["Task", "Status", "Date"])
+          st.dataframe(clean_df)
 
 
     elif choice == "Delete":
@@ -207,11 +213,21 @@ def main():
         with st.expander("Updated Data"):
           st.dataframe(df2)
 
+    else:
+      st.subheader("About What ToDo")
+      st.info("Built with Streamlit")
+      st.info("Created by: Yura Heo")
+
+
+
+    
+
 
 with headerSection:
     if 'loggedIn' not in st.session_state:
         st.session_state['loggedIn'] = False
         show_login_page() 
+
 
     else:
         if st.session_state['loggedIn']:
