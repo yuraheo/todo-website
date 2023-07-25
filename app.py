@@ -6,7 +6,7 @@ from db_fxn import create_table, add_tasks, view_all_tasks, \
   view_unique_tasks, get_task, edit_task_data, delete_task
 import plotly.express as px
 
-from user import login, signup
+from user import login, signup, save_task
 
 headerSection = st.container()
 mainSection = st.container()
@@ -15,20 +15,9 @@ signupSection = st.container()
 logOutSection = st.container()
 
 
-
-
- # Call the login function when the button is clicked
-
-
-# def show_main_page():
-#     with mainSection:
-#         processingClicked = st.button("Start Processing", key="processing")
-#     if processingClicked:
-#         st.balloons()
-
-
 def LoggedOut_Clicked():
     st.session_state['loggedIn'] = False
+    st.session_state['userId'] = None
 
 
 
@@ -63,11 +52,14 @@ def show_logout_page():
 def signed_up_Clicked(userName, password):
   if signup(userName, password):
       st.session_state['loggedIn'] = True
+      st.session_state['userId'] = userName
+
 
 
 def LoggedIn_Clicked(userName, password):
     if login(userName, password):
         st.session_state['loggedIn'] = True
+        st.session_state['userId'] =userName
 
     else:
         st.session_state["loggedIn"] = False
@@ -106,6 +98,7 @@ def show_login_page():
 def main():
     st.title("My Tasks")
     menu = ["Create", "Read", "Update", "Delete", "About"]
+
     choice = st.sidebar.selectbox("Menu", menu)
 
     create_table()
@@ -124,9 +117,12 @@ def main():
 
 
         if st.button("Add Task"):
-          add_tasks(task, task_status, task_due_date)
-          st.success("Successfully Added Task: {}".format(task))
-          st.balloons()
+          user_id = st.session_state['userId']
+          if user_id:
+            add_tasks(task, task_status, task_due_date)
+            save_task(user_id, task, task_status, task_due_date)
+            st.success("Successfully Added Task: {}".format(task))
+            st.balloons()
 
 
 
@@ -206,7 +202,7 @@ def main():
         st.warning("Do you want to delete {}?".format(selected_task))
         if st.button("Delete Task"):
           delete_task(selected_task)
-          st.warning("{} has been successfully deleted.", format(selected_task))
+          st.write(f"{selected_task} has been successfully deleted.")
 
         new_result = view_all_tasks()
         df2 = pd.DataFrame(new_result, columns=['Task', 'Status', 'Due Date'])

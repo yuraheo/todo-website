@@ -10,7 +10,7 @@ import bcrypt
 CNX= mysql.connector.connect
 
 
-def login(userName: str, password: str) -> bool:
+def login(userName: str, password: str) -> str:
     if (userName is None or password is None):
         return False
 
@@ -20,8 +20,8 @@ def login(userName: str, password: str) -> bool:
     if result_args is not None:
         hashed_password = result_args[1]
         if bcrypt.checkpw(password.encode(), hashed_password.encode()):
-            return True
-    return False
+            return result_args[0]
+    return None
 
 
 
@@ -68,9 +68,17 @@ def check_user_exists(userName: str) -> bool:
     return False
 
 
-def save_user(userName: str, hashed_password: str):
+def save_user(userName: str, hashed_password: str) -> str:
     args = [userName, hashed_password]
-    executeSQLQuery("SaveUser", args)    
+    result_args = executeSQLQuery("SaveUser", args)
+    if result_args is not None:
+        return result_args[0]
+
+def save_task(userId: str, task: str, status: str, due_date: str):
+    args = [userId, task, status, due_date]
+    executeSQLQuery("SaveTask", args)
+    return None
+
 
     
 
