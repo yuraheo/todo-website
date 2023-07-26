@@ -7,7 +7,9 @@ Created on 7/17/2023
 import mysql.connector
 from configparser import ConfigParser
 import bcrypt
-CNX= mysql.connector.connect
+CNX= mysql.connector.connect (conn)
+
+
 
 
 def login(userName: str, password: str) -> str:
@@ -73,15 +75,6 @@ def save_user(userName: str, hashed_password: str) -> str:
     result_args = executeSQLQuery("SaveUser", args)
     if result_args is not None:
         return result_args[0]
-
-def save_task(userId: str, task: str, status: str, due_date: str):
-    args = [userId, task, status, due_date]
-    executeSQLQuery("SaveTask", args)
-    return None
-
-
-    
-
 
 
 def hash_password(password: str) -> str:
