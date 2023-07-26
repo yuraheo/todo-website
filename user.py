@@ -7,24 +7,32 @@ Created on 7/17/2023
 import mysql.connector
 from configparser import ConfigParser
 import bcrypt
-CNX= mysql.connector.connect (conn)
+CNX= mysql.connector.connect 
 
 
 
 
-def login(userName: str, password: str) -> str:
+
+def login(userName: str, password: str) -> bool:
     if (userName is None or password is None):
         return False
 
-    args = [userName, password]
+    args = [userName, password, 0]
     result_args = executeSQLQuery("CheckUser",args)
     # returns => ('admin', 'admin', 1)
-    if result_args is not None:
-        hashed_password = result_args[1]
-        if bcrypt.checkpw(password.encode(), hashed_password.encode()):
-            return result_args[0]
-    return None
+    return (result_args[2] == 1)
+    
 
+def signup(userName: str, password: str) -> bool:
+    if userName is None or password is None:
+        return False
+
+    if check_user_exists(userName):
+        return False
+
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    save_user(userName, hashed_password)
+    return True
 
 
 
@@ -42,20 +50,30 @@ def executeSQLQuery(query, args):
                                       user=_user, passwd=_password, port=_port)
 
         with CNX.cursor() as cur:
-            return cur.callproc(query, args)
+            cur.callproc(query, args)
+        # Fetch the result of the stored procedure
+            result = None
+            for result_args in cur.stored_results():
+                result = result_args.fetchone()[0]
+            return result
 
 
-def signup(userName: str, password: str) -> bool:
-    if userName is None or password is None:
-        return False
 
-    if check_user_exists(userName):
-        return False
 
-    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    save_user(userName, hashed_password)
+           # return cur.callproc(query, args)
 
-    return True
+
+# def signup(userName: str, password: str) -> bool:
+#     if userName is None or password is None:
+#         return False
+
+#     if check_user_exists(userName):
+#         return False
+
+#     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+#     save_user(userName, hashed_password)
+
+#     return True
 
 
     

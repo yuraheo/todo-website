@@ -52,4 +52,5 @@ END$$
 DELIMITER ;
 
 
-
+DELIMITER ;
+CALL SaveUser('admin','admin')

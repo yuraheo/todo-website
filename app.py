@@ -1,12 +1,11 @@
 
-
 import streamlit as st
 import pandas as pd
-from db_fxn import create_table, add_tasks, view_all_tasks, \
+from db_fxn import create_user_table, add_tasks, view_all_tasks, \
   view_unique_tasks, get_task, edit_task_data, delete_task
 import plotly.express as px
 
-from user import login, signup, save_task
+from user import login, signup
 
 headerSection = st.container()
 mainSection = st.container()
@@ -26,28 +25,6 @@ def show_logout_page():
     with logOutSection:
         st.button("Log Out", key = "logout", on_click = LoggedOut_Clicked)
 
-
-# def signed_up_Clicked():
-#   if signup(userName, password):
-#       st.session_state['loggedIn'] = True
-
-#   else:
-#       st.session_state["loggedIn"] = False
-#       st.error("Invalid username or password")
-
-
-# def show_sign_up_page():
-#   st.title("What ToDo.")
-#   st.header(": to make the best out of today")
-#   st.subheader("Thank you for signing up to What ToDo")
-#   with signupSection:
-#       if st.session_state['loggedIn'] == False:
-#           userName = st.text_input(label = "", value ="", placeholder =
-#           "Enter your new user name")
-#           password = st.text_input(label="", value="", placeholder=
-#           "Enter your new password", type = "password")
-#           st.button("Signup", key = "signup", on_click = lambda:
-#           signed_up_Clicked(userName, password))
 
 def signed_up_Clicked(userName, password):
   if signup(userName, password):
@@ -96,12 +73,13 @@ def show_login_page():
 
 
 def main():
+
     st.title("My Tasks")
     menu = ["Create", "Read", "Update", "Delete", "About"]
-
+    userId = st.session_state['userId']
     choice = st.sidebar.selectbox("Menu", menu)
 
-    create_table()
+    create_user_table()
     if choice == "Create":
         st.subheader("Add Item")
 
@@ -117,19 +95,16 @@ def main():
 
 
         if st.button("Add Task"):
-          user_id = st.session_state['userId']
-          if user_id:
-            add_tasks(task, task_status, task_due_date)
-            save_task(user_id, task, task_status, task_due_date)
-            st.success("Successfully Added Task: {}".format(task))
-            st.balloons()
+          add_tasks(userId, task, task_status, task_due_date)
+          st.success("Successfully Added Task: {}".format(task))
+          st.balloons()
 
 
 
 
     elif choice == "Read":
         st.subheader("View Items")
-        result = view_all_tasks()
+        result = view_all_tasks(userId)
         st.write(result)
         with st.expander("View All"):
 			      clean_df = pd.DataFrame(result,columns=["Task", "Status", "Due Date"])
@@ -147,7 +122,7 @@ def main():
     elif choice == "Update":
         st.subheader("Edit Items")
         with st.expander("Current Tasks"):
-          result = view_all_tasks()
+          result = view_all_tasks(userId)
           # st.write(result)
           clean_df = pd.DataFrame(result, columns=["Task", "Status", "Date"])
           st.dataframe(clean_df)
@@ -157,7 +132,7 @@ def main():
 
           selected_task = st.selectbox("Task to Edit", list_of_tasks)
 
-          selected_result = get_task(selected_task)
+          selected_result = get_task(selected_task, userId)
           st.write(selected_result)
 
           if selected_result:
@@ -179,11 +154,11 @@ def main():
 
             if st.button("Update Task"):
               edit_task_data(new_task, new_task_status, new_task_due_date, task,
-                             task_status, task_due_date)
+                             task_status, task_due_date, userId)
               st.success("Successfully Updated {} to {}".format(task, new_task))
 
         with st.expander("View Updated Data"):
-          result = view_all_tasks()
+          result = view_all_tasks(userId)
           # st.write(result)
           clean_df = pd.DataFrame(result, columns=["Task", "Status", "Date"])
           st.dataframe(clean_df)
@@ -191,7 +166,7 @@ def main():
 
     elif choice == "Delete":
         st.subheader("Delete Item")
-        result = view_all_tasks()
+        result = view_all_tasks(userId)
         df = pd.DataFrame(result, columns = ['Task', 'Status', 'Due Date'])
         with st.expander("Current Data"):
           st.dataframe(df)
@@ -201,10 +176,10 @@ def main():
         selected_task = st.selectbox("Task to Delete", list_of_tasks)
         st.warning("Do you want to delete {}?".format(selected_task))
         if st.button("Delete Task"):
-          delete_task(selected_task)
+          delete_task(selected_task, userId)
           st.write(f"{selected_task} has been successfully deleted.")
 
-        new_result = view_all_tasks()
+        new_result = view_all_tasks(userId)
         df2 = pd.DataFrame(new_result, columns=['Task', 'Status', 'Due Date'])
         with st.expander("Updated Data"):
           st.dataframe(df2)
