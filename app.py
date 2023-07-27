@@ -50,7 +50,7 @@ def LoggedIn_Clicked(userName, password):
 
 def show_login_page():
   st.title("What ToDo.")
-  st.header(": to make the best out of today")
+  st.header(": to make the best out of today 📈")
   menu = ["Login", "Sign Up"]
   choice = st.sidebar.selectbox("Menu", menu)
   if choice == "Login":
@@ -78,7 +78,7 @@ def show_login_page():
 
 
 def main():
-    st.title("My Tasks")
+    st.title("My Tasks📜")
     menu = ["Create", "Read", "Update", "Delete", "About"]
     userId = st.session_state['userId']
     st.write( f"Welcome, {userId}!")
@@ -97,7 +97,7 @@ def main():
           task = st.text_area("Task To Do")
 
         with col2:
-          task_status = st.selectbox("Status", ["To Do", "Doing", "Done"])
+          task_status = st.selectbox("Status", ["To Do✏️", "Doing🔥", "Done✅"])
           task_due_date = st.date_input("Due Date")
 
 
@@ -112,7 +112,7 @@ def main():
     elif choice == "Read":
         st.subheader("View Items")
         result = view_all_tasks(userId)
-        st.write(result)
+        # st.write(result)
         with st.expander("View All"):
 			      clean_df = pd.DataFrame(result,columns=["Task", "Status", "Due Date"])
 			      st.dataframe(clean_df)
@@ -122,8 +122,8 @@ def main():
           task_df = task_df.reset_index()
           st.dataframe(task_df)
 
-          p1 = px.pie(task_df, names = task_df.index, values = 'Status')
-          st.plotly_chart(p1,use_container_width=True)
+          p1 = px.pie(task_df, names = 'count', values = 'Status')
+          st.plotly_chart(p1)
 
 
     elif choice == "Update":
@@ -175,7 +175,7 @@ def main():
         st.subheader("Delete Item")
         result = view_all_tasks(userId)
         df = pd.DataFrame(result, columns = ['Task', 'Status', 'Due Date'])
-        with st.expander("Current Data"):
+        with st.expander("Current Tasks"):
           st.dataframe(df)
 
         list_of_tasks = [i[0] for i in view_unique_tasks()]
