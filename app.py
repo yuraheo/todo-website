@@ -1,11 +1,11 @@
 
 import streamlit as st
 import pandas as pd
-from db_fxn import create_user_table, add_tasks, view_all_tasks, \
-  view_unique_tasks, get_task, edit_task_data, delete_task
+from db_fxn import (create_user_table, add_tasks, view_all_tasks, view_unique_tasks, get_task, edit_task_data, delete_task, add_user, get_user_password, add_user, check_user_exists, create_task_table)
 import plotly.express as px
 
-from user import login, signup
+
+# import login, signup from user 
 
 headerSection = st.container()
 mainSection = st.container()
@@ -27,20 +27,25 @@ def show_logout_page():
 
 
 def signed_up_Clicked(userName, password):
-  if signup(userName, password):
-      st.session_state['loggedIn'] = True
-      st.session_state['userId'] = userName
+  if signup(userName, password) == True:
+    st.session_state['loggedIn'] = True
+    st.session_state['userId'] = userName
+  else:
+    st.session_state["loggedIn"] = False
+    st.error("Invalid user name or password")
 
 
 
 def LoggedIn_Clicked(userName, password):
-    if login(userName, password):
-        st.session_state['loggedIn'] = True
-        st.session_state['userId'] =userName
+    if login(userName, password) == True:
+      st.session_state['loggedIn'] = True
+      st.session_state['userId'] =userName
 
     else:
-        st.session_state["loggedIn"] = False
-        st.error("Invalid username or password")
+      st.session_state["loggedIn"] = False
+      st.error("Invalid user name or password")
+
+        
 
 
 def show_login_page():
@@ -50,36 +55,38 @@ def show_login_page():
   choice = st.sidebar.selectbox("Menu", menu)
   if choice == "Login":
     with loginSection:
-      if not st.session_state['loggedIn']:
-          userName = st.text_input(label = "", value ="", placeholder =
-          "Enter your user name")
-          password = st.text_input(label="", value="", placeholder=
-          "Enter your password", type = "password")
-          st.button("Login", key = "login", on_click = lambda:
-          LoggedIn_Clicked(userName, password))
+        st.session_state['loggedIn']= False
+        userName = st.text_input(label = "", value ="", placeholder =
+        "Enter your user name")
+        password = st.text_input(label="", value="", placeholder=
+        "Enter your password", type = "password")
+        st.button("Login", key = "login", on_click = lambda:
+        LoggedIn_Clicked(userName, password))
 
   if choice == "Sign Up":
     with signupSection:
-      if st.session_state['loggedIn'] == False:
-          userName = st.text_input(label = "", value ="", placeholder =
-          "Enter your new user name")
-          password = st.text_input(label="", value="", placeholder=
-          "Enter your new password", type = "password")
-          st.button("Signup", key = "signup", on_click = lambda:
-          signed_up_Clicked(userName, password))
+      st.session_state['loggedIn'] =False
+      userName = st.text_input(label = "", value ="", placeholder =
+      "Enter your WhatToDo user name")
+      password = st.text_input(label="", value="", placeholder=
+      "Enter your WhatToDo password", type = "password")
+      st.button("Signup", key = "signup", on_click = lambda:
+      signed_up_Clicked(userName, password))
 
 
 
 
 
 def main():
-
     st.title("My Tasks")
     menu = ["Create", "Read", "Update", "Delete", "About"]
     userId = st.session_state['userId']
+    st.write( f"Welcome, {userId}!")
     choice = st.sidebar.selectbox("Menu", menu)
 
-    create_user_table()
+    create_task_table()
+    
+
     if choice == "Create":
         st.subheader("Add Item")
 
@@ -190,8 +197,40 @@ def main():
       st.info("Created by: Yura Heo")
 
 
+def login(userName: str, password: str) -> bool:
+    if (userName is None or password is None):
+        return False
 
+    create_user_table()
+    if check_user_exists(userName):
+        if get_user_password(userName) == None:
+          return False
+
+        if password != get_user_password(userName):
+          return False # true 로 바꿨을때 성공했으니까 password 같은데도 인식 못함
+
+        if password == get_user_password(userName):
+          return True
     
+    else:
+      # error_message = "User does not exist. Please sign up by clicking on the menu."
+      return False
+
+
+
+def signup(userName: str, password: str):
+    if (userName is None or password is None):
+      return False
+
+    create_user_table()
+    if check_user_exists(userName):
+      return False
+
+    add_user(userName, password)
+    return True
+
+
+
 
 
 with headerSection:
@@ -201,13 +240,13 @@ with headerSection:
 
 
     else:
-        if st.session_state['loggedIn']:
+        if st.session_state['loggedIn'] == True:
             show_logout_page()
             main()
         else:
             show_login_page()
 
 
-
+# user에 있던 ftn 다 옮김
 
 

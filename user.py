@@ -4,10 +4,13 @@ Created on 7/17/2023
 @author: yuraheo
 """
 
-import mysql.connector
+from db_fxn import get_user_password, add_user, check_user_exists
+
 from configparser import ConfigParser
 import bcrypt
-CNX= mysql.connector.connect 
+
+
+
 
 
 
@@ -17,82 +20,29 @@ def login(userName: str, password: str) -> bool:
     if (userName is None or password is None):
         return False
 
-    args = [userName, password, 0]
-    result_args = executeSQLQuery("CheckUser",args)
-    # returns => ('admin', 'admin', 1)
-    return (result_args[2] == 1)
+    if password != get_user_password(userName):
+        return False
     
+    if password == get_user_password(userName):
+        return True
+
 
 def signup(userName: str, password: str) -> bool:
     if userName is None or password is None:
-        return False
+        error_message = "Both userName and password must be provided."
+        return False, error_message
+
 
     if check_user_exists(userName):
-        return False
+        error_message = "User already exists. Please choose a different userName."
+        return False, error_message
 
     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    save_user(userName, hashed_password)
+    add_user(userName, hashed_password)
     return True
 
 
 
-def executeSQLQuery(query, args):
-    global CNX
-    if (CNX is None):
-        config = ConfigParser()
-        config. read("config.ini")
-        _host = config.get('MySQL', 'host')
-        _port = config.get('MySQL', 'port')
-        _database = config.get('MySQL', 'database')
-        _user = config.get('MySQL', 'user')
-        _password = config.get('MySQL', 'password')
-        CNX = mysql.connector.connect(host=_host, database=_database,
-                                      user=_user, passwd=_password, port=_port)
-
-        with CNX.cursor() as cur:
-            cur.callproc(query, args)
-        # Fetch the result of the stored procedure
-            result = None
-            for result_args in cur.stored_results():
-                result = result_args.fetchone()[0]
-            return result
-
-
-
-
-           # return cur.callproc(query, args)
-
-
-# def signup(userName: str, password: str) -> bool:
-#     if userName is None or password is None:
-#         return False
-
-#     if check_user_exists(userName):
-#         return False
-
-#     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-#     save_user(userName, hashed_password)
-
-#     return True
-
-
-    
-
-
-def check_user_exists(userName: str) -> bool:
-    args = [userName]
-    result_args = executeSQLQuery("CheckUserExists", args)
-
-    if result_args is not None:
-        return result_args[0] >0
-    return False
-
-
-def save_user(userName: str, hashed_password: str) -> str:
-    args = [userName, hashed_password]
-    result_args = executeSQLQuery("SaveUser", args)
-    if result_args is not None:
-        return result_args[0]
 
 
 def hash_password(password: str) -> str:
@@ -100,3 +50,33 @@ def hash_password(password: str) -> str:
     hashed_password = bcrypt.hashpw(password.encode(), salt)
     return hashed_password.decode()
 
+
+# def save_user(userName: str, hashed_password: str) -> str:
+#     args = [userName, hashed_password]
+#     result_args = executeSQLQuery("SaveUser", args)
+#     if result_args is not None:
+#         return result_args[0]
+
+
+
+
+# def executeSQLQuery(query, args):
+#     global CNX
+#     if (CNX is None):
+#         config = ConfigParser()
+#         config. read("config.ini")
+#         _host = config.get('MySQL', 'host')
+#         _port = config.get('MySQL', 'port')
+#         _database = config.get('MySQL', 'database')
+#         _user = config.get('MySQL', 'user')
+#         _password = config.get('MySQL', 'password')
+#         CNX = mysql.connector.connect(host=_host, database=_database,
+#                                       user=_user, passwd=_password, port=_port)
+
+#         with CNX.cursor() as cur:
+#             cur.callproc(query, args)
+#         # Fetch the result of the stored procedure
+#             result = None
+#             for result_args in cur.stored_results():
+#                 result = result_args.fetchone()[0]
+#             return result
