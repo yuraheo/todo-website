@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 from db_fxn import (create_user_table, add_tasks, view_all_tasks, view_unique_tasks, get_task, edit_task_data, delete_task, add_user, get_user_password, add_user, check_user_exists, create_task_table)
-import plotly.express as px
+# import plotly.express as px
 
 
 # import login, signup from user 
@@ -121,9 +121,9 @@ def main():
           task_df = clean_df['Status'].value_counts().to_frame()
           task_df = task_df.reset_index()
           st.dataframe(task_df)
-
-          p1 = px.pie(task_df, names = 'count', values = 'Status')
-          st.plotly_chart(p1)
+          #
+          # p1 = px.pie(task_df, names = 'count', values = 'Status')
+          # st.plotly_chart(p1)
 
 
     elif choice == "Update":
